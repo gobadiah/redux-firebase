@@ -1,0 +1,53 @@
+{
+  "name": "redux-firebase",
+  "version": "0.1.0",
+  "description": "Makes the connection between firebase and redux using a schema definition",
+  "main": "index.js",
+  "scripts": {
+    "test": "karma start karma.conf-ci.js",
+    "test:watch": "karma start karma.conf.js",
+    "prebuild": "rimraf dist lib",
+    "build": "webpack && babel src --out-dir lib",
+    "build:watch": "babel src --watch --out-dir lib",
+    "prepublish": "npm run build",
+    "postinstall": "npm run build"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/gobadiah/redux-firebase.git"
+  },
+  "keywords": [
+    "redux",
+    "firebase",
+    "immutable"
+  ],
+  "author": "Michaël Journo",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/gobadiah/redux-firebase/issues"
+  },
+  "homepage": "https://github.com/gobadiah/redux-firebase#readme",
+  "devDependencies": {
+    "babel-core": "^6.7.2",
+    "babel-loader": "^6.2.4",
+    "chai": "^3.5.0",
+    "eslint": "^2.4.0",
+    "isparta-instrumenter-loader": "^1.0.0",
+    "karma": "^0.13.22",
+    "karma-chrome-launcher": "^0.2.2",
+    "karma-coverage": "^0.5.5",
+    "karma-eslint": "^2.1.0",
+    "karma-firefox-launcher": "^0.1.7",
+    "karma-mocha": "^0.2.2",
+    "karma-mocha-reporter": "^2.0.0",
+    "karma-phantomjs-launcher": "^1.0.0",
+    "karma-safari-launcher": "^0.1.1",
+    "karma-sinon": "^1.0.4",
+    "karma-sourcemap-loader": "^0.3.7",
+    "karma-webpack": "^1.7.0",
+    "mocha": "^2.4.5",
+    "phantomjs-prebuilt": "^2.1.5",
+    "sinon": "^1.17.3",
+    "webpack": "^1.12.14"
+  }
+}
