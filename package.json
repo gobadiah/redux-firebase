@@ -55,6 +55,8 @@
   "dependencies": {
     "firebase": "^2.4.1",
     "immutable": "^3.7.6",
+    "immutablediff": "^0.4.2",
+    "immutablepatch": "^0.2.2",
     "lodash": "^4.6.1",
     "lodash-inflection": "^1.3.2"
   }

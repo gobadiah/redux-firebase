@@ -27,8 +27,8 @@ class Schema {
     return this;
   }
 
-  _define(schema, field, inverseof, type) {
-    this._relationships[field] = { schema, field, inverseof, type };
+  _define(schema, field, inverse_of, type) {
+    this._relationships[field] = { schema, field, inverse_of, type };
   }
 };
 
