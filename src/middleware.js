@@ -25,7 +25,6 @@ export default schemas => {
     });
     ref.on('value', ref.onValueCallback);
     ref.onAuthCallback = userData => {
-      console.log('onAuthCallback', count);
       if (userData) {
         store.dispatch({
           type: SIGNED_IN_TYPE,
@@ -39,7 +38,6 @@ export default schemas => {
     };
     ref.onAuth(ref.onAuthCallback);
     ref.onConnectedCallback = snap => {
-      console.log('onConnectedCallback', count);
       if (snap.val()) {
         store.dispatch({
           type: CONNECTED_TYPE
@@ -67,11 +65,6 @@ export default schemas => {
       const snapshot  = store.getState().app.get('snapshot');
       const diff1 = diff(snapshot, current);
       const diff2 = diff(snapshot, server);
-      console.log('Snapshot', snapshot.toJS());
-      console.log('Server', server.toJS());
-      console.log('Current', current.toJS());
-      console.log('Snapshot ... Current', diff1);
-      console.log('Snapshot ... Server', diff2);
       let final_diff = diff2;
       diff1.forEach(val => {
         const path  = val.get('path');
