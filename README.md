@@ -1,4 +1,4 @@
-# redux-firebase [![build status](https://img.shields.io/travis/gobadiah/redux-firebase/master.svg?style=flat-square)](https://travis-ci.org/gobadiah/redux-firebase) 
+# redux-firebase [![build status](https://travis-ci.org/gobadiah/redux-firebase.svg)](https://travis-ci.org/gobadiah/redux-firebase) 
 
 Redux firebase makes the connection between your firebase backend and your redux store, using a schema.
 
