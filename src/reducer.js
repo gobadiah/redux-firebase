@@ -22,8 +22,12 @@ export default schemas => {
       return state;
     }
     if (VALUE(action.type)) {
-      const server    = fromJS(action.payload);
-      const new_state = state.update('entities', map => map.merge(server));
+      let new_state = state.set('entities', fromJS(action.payload));
+      for (let key in schemas) {
+        if (!new_state.hasIn(['entities', key])) {
+          new_state = new_state.setIn(['entities', key], Map());
+        }
+      }
       if (state.get('connected')) {
         return new_state.delete('snapshot');
       }
@@ -51,7 +55,7 @@ export default schemas => {
       }
       return state;
     } else if (RESET_ENTITIES(action.type)) {
-      return initialState;
+      return state.set('entities', initialState.get('entities'));
     }
     return state;
   }
