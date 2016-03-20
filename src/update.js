@@ -5,9 +5,8 @@ export default (schemas, entities, key, data) => {
   const id      = data.id;
   const result  = {};
   const schema  = schemas[key];
-  const entitiy = entities.getIn([key, id]);
+  const entity = entities.getIn([key, id]);
   result[key + '/' + id] = data;
-  console.log('update ...', result);
   for (let field in schema.relationships()) {
     const relation = schema.relation(field);
     if (!data.hasOwnProperty(field)) {

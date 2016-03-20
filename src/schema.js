@@ -30,6 +30,6 @@ class Schema {
   _define(schema, field, inverse_of, type) {
     this._relationships[field] = { schema, field, inverse_of, type };
   }
-};
+}
 
 export default Schema;

@@ -35,7 +35,7 @@ module.exports = function(config) {
     // preprocess matching files before serving them to the browser
     // available preprocessors: https://npmjs.org/browse/keyword/karma-preprocessor
     preprocessors: {
-      'tests.webpack.js': ['eslint', 'webpack', 'sourcemap']
+      'tests.webpack.js': ['webpack', 'sourcemap']
     },
 
 
@@ -81,7 +81,8 @@ module.exports = function(config) {
 
     eslint: {
       stopOnError: false,
-      stopOnWarning: false
+      stopOnWarning: false,
+      showWarnings: true,
     },
 
     webpack: {
@@ -95,6 +96,7 @@ module.exports = function(config) {
       module: {
         preLoaders: [
           {test: /\.js$/, exclude: /(node_modules|bower_components|test)\//, loader: 'isparta-instrumenter'},
+          {test: /\.js$/, exclude: /(node_modules|test)/, loader: 'eslint'}
         ],
         loaders: [
           {test: /\.jsx?$/, exclude: /node_modules/, loader: 'babel'},

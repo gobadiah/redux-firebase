@@ -36,7 +36,6 @@ export default (schemas, toEntities, toFirebase = state => state.auth.get('fireb
   const result = {};
   const isAuthed = state => !!state.auth.get('auth');
   const update_generic = payload => (dispatch, getState) => {
-    console.log('update_generic =', payload);
     if (isAuthed(getState())) {
       toFirebase(getState()).update(payload)
       .catch(error => dispatch({
@@ -119,18 +118,12 @@ export default (schemas, toEntities, toFirebase = state => state.auth.get('fireb
 
     const update = (data) => (dispatch, getState) => {
       const payload = _update(schemas, toEntities(getState()), key, data);
-      console.log('data is', data);
       const final_payload = {};
       for (let key in payload) {
         const value = payload[key];
         const path = key.split('/');
-        // final_payload[key] = Object.assign({}, getState().app.getIn(['entities', ...path]).toJS(), value);
         final_payload[key] = getState().app.getIn(['entities', ...path]).mergeDeep(fromJS(value)).toJS();
-        console.log('value is', value);
-        console.log('then ', final_payload[key]);
       }
-      console.log('update payload =', payload);
-      console.log('final  payload =', final_payload);
       if (isAuthed(getState())) {
         toFirebase(getState()).update(final_payload)
         .catch(error => dispatch({

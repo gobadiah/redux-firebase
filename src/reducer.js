@@ -2,7 +2,6 @@ import {
   Map,
   fromJS
 } from 'immutable';
-import diff from 'immutablediff';
 
 import {
   ANONYMOUS_VALUE,
@@ -10,7 +9,6 @@ import {
   TAKE_SNAPSHOT,
   RESET_ENTITIES,
   DISCONNECTED,
-  SIGNED_OUT,
   VALUE
 } from './constants';
 
@@ -20,6 +18,9 @@ export default schemas => {
     initialState = initialState.setIn(['entities', key], Map());
   }
   return (state = initialState, action) => {
+    if (!action || !action.type) {
+      return state;
+    }
     if (VALUE(action.type)) {
       const server    = fromJS(action.payload);
       const new_state = state.update('entities', map => map.merge(server));
@@ -41,10 +42,8 @@ export default schemas => {
       }
       return state;
     } else if (CONNECTED(action.type)) {
-      console.log('Reducer connected');
       return state.set('connected', true);
     } else if (DISCONNECTED(action.type)) {
-      console.log('Reducer disconnected');
       return state.set('connected', false);
     } else if (TAKE_SNAPSHOT(action.type)) {
       if (!state.has('snapshot')) {
