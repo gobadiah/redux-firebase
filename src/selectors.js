@@ -1,4 +1,4 @@
-export default (schemas, toEntities) => {
+export default (schemas, toState) => {
   const computeObject = (entities, key, id) => {
     const schema  = schemas[key];
     let object    = entities.getIn([key, id]);
@@ -15,7 +15,7 @@ export default (schemas, toEntities) => {
   };
   let result = {};
   for (let key in schemas) {
-    Object.assign(result, { [key]: { all: state => computeList(toEntities(state), key), one: id => state => computeObject(toEntities(state), key, id) }});
+    Object.assign(result, { [key]: { all: state => computeList(toState(state).get('entities'), key), one: id => state => computeObject(toState(state).get('entities'), key, id) }});
   }
   return result;
 }

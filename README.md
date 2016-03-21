@@ -8,15 +8,33 @@ Redux firebase makes the connection between your firebase backend and your redux
     
 ## Usage
 
-First define your schemas like so
+First define your schemas in `schemas.js` like so :
 
-    import { Schema } from 'redux-firebase';
+```javascript
+import { Schema } from 'redux-firebase';
     
-    const drivers 		= new Schema('drivers');
-    const cars    		= new Schema('cars');
-    
-In this case we assume that a driver can have many cars, and many technicians at his or her service, but if we destroy a driver, the cars disappear as well, but not the technicians. 
+const drivers = new Schema('drivers');
+const cars    = new Schema('cars');
 
-	drivers.hasMany(cars, 'race_cars', 'owner');
+drivers.hasMany(cars, 'private_cars', 'owner');
+
+export default {
+  drivers,
+  cars
+};
+```
+
+Then you need to use : 
+
+1. Redux-firebase middleware and reducer :
+
+```javascript
+import { create 
+```
+    
+2. Test
+
+
+    
 
 		

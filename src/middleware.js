@@ -11,12 +11,13 @@ import {
   SIGNED_IN_TYPE,
   SIGNED_OUT,
   SIGNED_OUT_TYPE,
-  VALUE_TYPE
+  VALUE_TYPE,
+  toRef,
 } from './constants';
 import diff   from 'immutablediff';
 import patch  from 'immutablepatch';
 
-export default schemas => {
+export default (schemas, toState) => {
   let count = 0;
   const createListeners = (store, ref) => {
     ref.onValueCallback = data => store.dispatch({
@@ -51,7 +52,13 @@ export default schemas => {
     ref.root().child('.info/connected').on('value', ref.onConnectedCallback);
     count += 1;
   }
+  let prevObject = null;
   const check = (store, firebase) => {
+    if (prevObject) {
+      console.log('prevObject');
+      console.log(prevObject.listening, firebase === prevObject);
+    }
+    prevObject = firebase;
     if (!firebase.listening) {
       firebase.listening = true;
       createListeners(store, firebase);
@@ -59,7 +66,7 @@ export default schemas => {
   };
   let hasJustSignedUp = false;
   return store => next => action => {
-    if (VALUE(action.type) && store.getState().app.get('snapshot') && store.getState().app.get('connected')) {
+    if (VALUE(action.type) && toState(store.getState()).get('snapshot') && toState(store.getState()).getIn(['firebase', 'connected'])) {
       const server    = fromJS(action.payload || {});
       const current   = store.getState().app.get('entities');
       const snapshot  = store.getState().app.get('snapshot');
@@ -68,7 +75,6 @@ export default schemas => {
       let final_diff = diff2;
       diff1.forEach(val => {
         const path  = val.get('path');
-        console.log('Looking up for path', path);
         let ok = true;
         diff2.forEach(ser => {
           const path_ser = ser.get('path');
@@ -76,42 +82,27 @@ export default schemas => {
             console.log(' -- CONFLICTS with', path_ser);
             ok = false;
             return false;
-          } else {
-            console.log(' -- ok', path_ser);
           }
         });
         if (ok) {
           final_diff = final_diff.insert(0, val);
         }
       });
-      console.log('Snapshot ... Final', final_diff);
       const final_state = patch(snapshot, final_diff);
-      console.log('Final state', final_state.toJS());
       if (diff(server, final_state).count() > 0) {
-        store.getState().auth.get('firebase').set(final_state.toJS());
+        toRef(toState(store.getState())).set(final_state.toJS());
         return;
       }
     } else if (VALUE(action.type) && hasJustSignedUp) {
-      const firebase = store.getState().auth.get('firebase');
+      const firebase  = toRef(toState(store.getState()));
       hasJustSignedUp = false;
-      firebase.set(store.getState().app.get('entities').toJS());
+      firebase.set(toState(store.getState()).get('entities').toJS());
       return;
-    } else if (DISCONNECTED(action.type)) {
-      if (store.getState().auth.get('auth')) {
-        store.dispatch({
-          type: TAKE_SNAPSHOT_TYPE
-        });
-      }
-    } else if (SIGNED_OUT(action.type) && store.getState().auth.get('auth')) {
-      store.dispatch({
-        type: RESET_ENTITIES_TYPE
-      });
     } else if (SIGNED_UP(action.type)) {
       hasJustSignedUp = true;
     }
     const result = next(action);
-    const firebase = store.getState().auth.get('firebase');
-    check(store, firebase);
+    const firebase = toRef(toState(store.getState()));
     return result;
   };
 };

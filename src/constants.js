@@ -55,3 +55,5 @@ export const takeSnapshot = () => ({
 
 export const RESET_ENTITIES_TYPE = PREFIX + 'RESET_ENTITIES';
 export const RESET_ENTITIES = s => s == RESET_ENTITIES_TYPE;
+
+export const toRef = state => state.getIn(['firebase', 'ref']);

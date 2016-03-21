@@ -7,6 +7,7 @@ import {
   SIGNED_UP_TYPE,
   ANONYMOUS_VALUE_TYPE,
   DESTROY_TYPE,
+  toRef
 } from './constants';
 
 import _destroy from './destroy';
@@ -32,12 +33,12 @@ export const sign_in = args => (dispatch, getState) => {
   return firebase.authWithPassword(args);
 };
 
-export default (schemas, toEntities, toFirebase = state => state.auth.get('firebase')) => {
+export default (schemas, toState) => {
   const result = {};
-  const isAuthed = state => !!state.auth.get('auth');
+  const isAuthed = state => !!toState(state).getIn(['firebase', 'auth']);
   const update_generic = payload => (dispatch, getState) => {
     if (isAuthed(getState())) {
-      toFirebase(getState()).update(payload)
+      toRef(toState(getState())).update(payload)
       .catch(error => dispatch({
         type: 'FAILURE',
         payload: error,
@@ -64,7 +65,7 @@ export default (schemas, toEntities, toFirebase = state => state.auth.get('fireb
     }
     let create = (data) => (dispatch, getState) => {
       const payload = {};
-      const ref     = toFirebase(getState()).child(key).push();
+      const ref     = toRef(toState(getState())).child(key).push();
       payload[key + '/' + ref.key()] = Object.assign({}, base_object, data, { id: ref.key() });
       for (let field in schema.relationships()) {
         let relation = schema.relation(field);
@@ -75,7 +76,7 @@ export default (schemas, toEntities, toFirebase = state => state.auth.get('fireb
         }
       }
       if (isAuthed(getState())) {
-        toFirebase(getState()).update(payload)
+        toRef(toState(getState())).update(payload)
         .catch(error => dispatch({
           type: CREATE_FAILURE(key),
           payload: error,
@@ -93,8 +94,8 @@ export default (schemas, toEntities, toFirebase = state => state.auth.get('fireb
     };
 
     const destroy = (id) => (dispatch, getState) => {
-      const to_destroy = _destroy(schemas, toEntities(getState()), key, id);
-      const ref        = toFirebase(getState());
+      const to_destroy = _destroy(schemas, toState(getState()).get('entities'), key, id);
+      const ref        = toRef(toState(getState()));
       const payload    = {};
       for (let path of to_destroy) {
         payload[path]  = null;
@@ -117,15 +118,18 @@ export default (schemas, toEntities, toFirebase = state => state.auth.get('fireb
     };
 
     const update = (data) => (dispatch, getState) => {
-      const payload = _update(schemas, toEntities(getState()), key, data);
+      const payload = _update(schemas, toState(getState()).get('entities'), key, data);
       const final_payload = {};
       for (let key in payload) {
         const value = payload[key];
         const path = key.split('/');
-        final_payload[key] = getState().app.getIn(['entities', ...path]).mergeDeep(fromJS(value)).toJS();
+        final_payload[key] = toState(getState()).getIn(['entities', ...path]).mergeDeep(fromJS(value)).toJS();
+        console.log(final_payload[key]);
+        console.log(toState(getState()).getIn(['entities', ...path]));
+        console.log(value);
       }
       if (isAuthed(getState())) {
-        toFirebase(getState()).update(final_payload)
+        toRef(toState(getState())).update(final_payload)
         .catch(error => dispatch({
           type: UPDATE_FAILURE(key),
           payload: error,
@@ -137,7 +141,7 @@ export default (schemas, toEntities, toFirebase = state => state.auth.get('fireb
       } else {
         dispatch({
           type: ANONYMOUS_VALUE_TYPE,
-          payload
+          payload: final_payload
         });
       }
     };
