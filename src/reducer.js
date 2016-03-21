@@ -1,3 +1,4 @@
+import Firebase from 'firebase';
 import {
   Map,
   fromJS
@@ -34,7 +35,7 @@ export default (schemas, endpoint) => {
       return state;
     }
     if (VALUE(action.type)) {
-      let new_state = state.set('entities', fromJS(action.payload));
+      let new_state = state.set('entities', fromJS(action.payload || {}));
       for (let key in schemas) {
         if (!new_state.hasIn(['entities', key])) {
           new_state = new_state.setIn(['entities', key], Map());
@@ -45,7 +46,6 @@ export default (schemas, endpoint) => {
       }
       return new_state;
     } else if (ANONYMOUS_VALUE(action.type)) {
-      console.log('Reducer anonymous value', action.payload);
       for (let key in action.payload) {
         const path = key.split('/');
         let value = action.payload[key];
@@ -74,14 +74,12 @@ export default (schemas, endpoint) => {
       ref.root().child('.info/connected').off();
       return initialState;
     } else if (SIGNED_IN(action.type)) {
-      console.log('Reducer signed_int', state.getIn(['firebase', 'auth']) ? state.getIn(['firebase', 'auth']) : null);
-      if (state.get('auth') && state.getIn(['firebase', 'auth', 'uid']) == action.payload.uid) {
+      if (state.getIn(['firebase', 'auth']) && state.getIn(['firebase', 'auth', 'uid']) == action.payload.uid) {
         return state;
       }
       let ref = state.getIn(['firebase', 'ref']);
       ref.off();
       ref.root().child('.info/connected').off();
-      console.log(action.payload);
       ref = new Firebase(endpoint + '/users/' + action.payload.uid);
       return state.setIn(['firebase', 'auth'], fromJS(action.payload))
                   .setIn(['firebase', 'ref'], ref);

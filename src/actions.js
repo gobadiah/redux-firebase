@@ -14,11 +14,11 @@ import _destroy from './destroy';
 import _update  from './update';
 
 export const sign_out = () => (dispatch, getState) => {
-  getState().auth.get('firebase').unauth();
+  toRef(getState().app.get('redux-firebase')).unauth();
 };
 
 export const sign_up = args => (dispatch, getState) => {
-  const firebase = getState().auth.get('firebase');
+  const firebase = toRef(getState().app.get('redux-firebase'));
   return firebase.createUser(args)
   .then(() => {
     dispatch({
@@ -29,7 +29,7 @@ export const sign_up = args => (dispatch, getState) => {
 };
 
 export const sign_in = args => (dispatch, getState) => {
-  const firebase = getState().auth.get('firebase');
+  const firebase = toRef(getState().app.get('redux-firebase'));
   return firebase.authWithPassword(args);
 };
 

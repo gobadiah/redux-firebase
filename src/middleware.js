@@ -54,11 +54,6 @@ export default (schemas, toState) => {
   }
   let prevObject = null;
   const check = (store, firebase) => {
-    if (prevObject) {
-      console.log('prevObject');
-      console.log(prevObject.listening, firebase === prevObject);
-    }
-    prevObject = firebase;
     if (!firebase.listening) {
       firebase.listening = true;
       createListeners(store, firebase);
@@ -103,6 +98,7 @@ export default (schemas, toState) => {
     }
     const result = next(action);
     const firebase = toRef(toState(store.getState()));
+    check(store, firebase);
     return result;
   };
 };
