@@ -19,6 +19,8 @@ function publish {
       git commit -am `semver tag`
       git tag `semver tag`
     fi
+    git push
+    git push --tags
   else
     echo "This version has already been published."
   fi
