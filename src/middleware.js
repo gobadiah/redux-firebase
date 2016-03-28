@@ -1,18 +1,13 @@
-import _          from 'lodash';
 import { fromJS } from 'immutable';
 import {
   VALUE,
-  DISCONNECTED,
-  TAKE_SNAPSHOT_TYPE,
   CONNECTED_TYPE,
-  RESET_ENTITIES_TYPE,
   DISCONNECTED_TYPE,
   SIGNED_UP,
   SIGNED_IN_TYPE,
-  SIGNED_OUT,
   SIGNED_OUT_TYPE,
   VALUE_TYPE,
-  toRef,
+  toRef
 } from './constants';
 import diff   from 'immutablediff';
 import patch  from 'immutablepatch';
@@ -52,9 +47,8 @@ export default (schemas, toState) => {
     ref.root().child('.info/connected').on('value', ref.onConnectedCallback);
     count += 1;
   }
-  let prevObject = null;
   const check = (store, firebase) => {
-    if (!firebase.listening) {
+    if (firebase && !firebase.listening && typeof(firebase.on) == 'function') {
       firebase.listening = true;
       createListeners(store, firebase);
     }
@@ -63,8 +57,8 @@ export default (schemas, toState) => {
   return store => next => action => {
     if (VALUE(action.type) && toState(store.getState()).get('snapshot') && toState(store.getState()).getIn(['firebase', 'connected'])) {
       const server    = fromJS(action.payload || {});
-      const current   = store.getState().app.get('entities');
-      const snapshot  = store.getState().app.get('snapshot');
+      const current   = toState(store.getState()).get('entities');
+      const snapshot  = toState(store.getState()).get('snapshot');
       const diff1 = diff(snapshot, current);
       const diff2 = diff(snapshot, server);
       let final_diff = diff2;
@@ -74,7 +68,6 @@ export default (schemas, toState) => {
         diff2.forEach(ser => {
           const path_ser = ser.get('path');
           if (path.startsWith(path_ser) || path_ser.startsWith(path)) {
-            console.log(' -- CONFLICTS with', path_ser);
             ok = false;
             return false;
           }

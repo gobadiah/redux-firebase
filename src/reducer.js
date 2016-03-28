@@ -8,11 +8,9 @@ import {
   ANONYMOUS_VALUE,
   CONNECTED,
   DISCONNECTED,
-  RESET_ENTITIES,
   SIGNED_IN,
   SIGNED_OUT,
   SIGNED_UP,
-  TAKE_SNAPSHOT,
   VALUE
 } from './constants';
 
@@ -22,8 +20,9 @@ export default (schemas, endpoint) => {
     firebase: Map({
       auth: null,
       connected: false,
+      connected_once: false,
       ref: new Firebase(endpoint),
-      signed_up: false,
+      signed_up: false
     }),
     snapshot: null
   });
@@ -31,6 +30,9 @@ export default (schemas, endpoint) => {
     initialState = initialState.setIn(['entities', key], Map());
   }
   return (state = initialState, action) => {
+    if (!state.get('firebase')) {
+      state = state.set('firebase', initialState.get('firebase'));
+    }
     if (!action || !action.type) {
       return state;
     }
@@ -41,8 +43,8 @@ export default (schemas, endpoint) => {
           new_state = new_state.setIn(['entities', key], Map());
         }
       }
-      if (state.get('connected')) {
-        return new_state.delete('snapshot');
+      if (state.getIn(['firebase', 'connected'])) {
+        return new_state.set('snapshot', null);
       }
       return new_state;
     } else if (ANONYMOUS_VALUE(action.type)) {
@@ -59,12 +61,12 @@ export default (schemas, endpoint) => {
       }
       return state;
     } else if (CONNECTED(action.type)) {
-      return state.setIn(['firebase', 'connected'], true);
+      return state.setIn(['firebase', 'connected'], true).setIn(['firebase', 'connected_once'], true);
     } else if (DISCONNECTED(action.type)) {
       if (state.getIn(['firebase', 'auth']) && !state.get('snapshot')) {
         state = state.set('snapshot', state.get('entities'));
       }
-      return state.set(['firebase', 'connected'], false);
+      return state.setIn(['firebase', 'connected'], false);
     } else if (SIGNED_OUT(action.type)) {
       if (!state.getIn(['firebase', 'auth'])) {
         return state;

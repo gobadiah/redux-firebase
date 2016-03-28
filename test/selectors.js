@@ -12,20 +12,25 @@ describe('selectors', () => {
     const selectors = createSelectors(schemas, state => state);
     expect(selectors['users'].all(state).toJS()).to.eql({
       one: {
+        id: 'one',
         shoes: {
           a: {
+            id: 'a',
             brand: 'Puma',
             owner: 'one'
           },
           b: {
+            id: 'b',
             brand: 'Tennis',
             owner: 'one'
           }
         }
       },
       two: {
+        id: 'two',
         shoes: {
           c: {
+            id: 'c',
             brand: 'Basket',
             owner: 'two'
           }
@@ -35,15 +40,18 @@ describe('selectors', () => {
     });
   });
 
-  it('should create a on selector', () => {
+  it('should create a one selector', () => {
     const selectors = createSelectors(schemas, state => state);
     expect(selectors['users'].one('one')(state).toJS()).to.eql({
+      id: 'one',
       shoes: {
         a: {
+          id: 'a',
           brand: 'Puma',
           owner: 'one'
         },
         b: {
+          id: 'b',
           brand: 'Tennis',
           owner: 'one'
         }

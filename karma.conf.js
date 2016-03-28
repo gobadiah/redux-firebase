@@ -1,5 +1,6 @@
 // Karma configuration
 // Generated on Tue Jan 26 2016 17:16:11 GMT+0100 (CET)
+var webpack = require('webpack');
 
 module.exports = function(config) {
   config.set({
@@ -99,11 +100,17 @@ module.exports = function(config) {
           {test: /\.js$/, exclude: /(node_modules|test)/, loader: 'eslint'}
         ],
         loaders: [
-          {test: /\.jsx?$/, exclude: /node_modules/, loader: 'babel'},
+          {test: /\.jsx?$/, exclude: /(node_modules|firebase-copy)/, loader: 'babel'},
         ],
         postLoaders: [
         ],
-      }
+        noParse: [
+          /\/sinon\.js/
+        ]
+      },
+      plugins: [
+        new webpack.IgnorePlugin(/firebase-copy/),
+      ]
     },
 
     webpackMiddleware: {

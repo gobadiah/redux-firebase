@@ -10,9 +10,9 @@ export default (schemas, toState) => {
     }
     return object;
   };
-  const computeList = (entities, key) => {
-    return entities.get(key).map((v, id) => computeObject(entities, key, id));
-  };
+
+  const computeList = (entities, key) => entities.get(key).map((v, id) => computeObject(entities, key, id));
+
   let result = {};
   for (let key in schemas) {
     Object.assign(result, { [key]: { all: state => computeList(toState(state).get('entities'), key), one: id => state => computeObject(toState(state).get('entities'), key, id) }});

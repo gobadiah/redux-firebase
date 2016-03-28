@@ -46,14 +46,4 @@ export const CONNECTED = s => s == CONNECTED_TYPE;
 export const DISCONNECTED_TYPE = PREFIX + 'DISCONNECTED';
 export const DISCONNECTED = s => s == DISCONNECTED_TYPE;
 
-export const TAKE_SNAPSHOT_TYPE = PREFIX + 'SNAPSHOT';
-export const TAKE_SNAPSHOT = s => s == TAKE_SNAPSHOT_TYPE;
-
-export const takeSnapshot = () => ({
-  type: TAKE_SNAPSHOT_TYPE
-});
-
-export const RESET_ENTITIES_TYPE = PREFIX + 'RESET_ENTITIES';
-export const RESET_ENTITIES = s => s == RESET_ENTITIES_TYPE;
-
 export const toRef = state => state.getIn(['firebase', 'ref']);

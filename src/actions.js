@@ -1,57 +1,43 @@
 import { fromJS } from 'immutable';
 
 import {
-  CREATE_TYPE,
-  CREATE_FAILURE,
-  UPDATE_TYPE,
   SIGNED_UP_TYPE,
   ANONYMOUS_VALUE_TYPE,
-  DESTROY_TYPE,
   toRef
 } from './constants';
 
 import _destroy from './destroy';
 import _update  from './update';
 
-export const sign_out = () => (dispatch, getState) => {
-  toRef(getState().app.get('redux-firebase')).unauth();
-};
-
-export const sign_up = args => (dispatch, getState) => {
-  const firebase = toRef(getState().app.get('redux-firebase'));
-  return firebase.createUser(args)
-  .then(() => {
-    dispatch({
-      type: SIGNED_UP_TYPE
-    });
-    return firebase.authWithPassword(args);
-  });
-};
-
-export const sign_in = args => (dispatch, getState) => {
-  const firebase = toRef(getState().app.get('redux-firebase'));
-  return firebase.authWithPassword(args);
-};
-
 export default (schemas, toState) => {
-  const result = {};
-  const isAuthed = state => !!toState(state).getIn(['firebase', 'auth']);
-  const update_generic = payload => (dispatch, getState) => {
-    if (isAuthed(getState())) {
-      toRef(toState(getState())).update(payload)
-      .catch(error => dispatch({
-        type: 'FAILURE',
-        payload: error,
-        error: true
-      }));
-    } else {
-      dispatch({
-        type: ANONYMOUS_VALUE_TYPE,
-        payload
-      });
-    }
+  const result = {
+    crud: {}
   };
-  result['update_generic'] = update_generic;
+
+  const sign_out = () => (dispatch, getState) => {
+    toRef(toState(getState())).unauth();
+  };
+  result.sign_out = sign_out;
+
+  const sign_up = args => (dispatch, getState) => {
+    const firebase = toRef(toState(getState()));
+    return firebase.createUser(args)
+    .then(() => {
+      dispatch({
+        type: SIGNED_UP_TYPE
+      });
+      return firebase.authWithPassword(args);
+    });
+  };
+  result.sign_up = sign_up;
+
+  const sign_in = args => (dispatch, getState) => {
+    const firebase = toRef(toState(getState()));
+    return firebase.authWithPassword(args);
+  };
+  result.sign_in = sign_in;
+
+  const isAuthed = state => !!toState(state).getIn(['firebase', 'auth']);
   for (let key in schemas) {
     let schema = schemas[key];
     const base_object = {};
@@ -75,16 +61,8 @@ export default (schemas, toState) => {
           }
         }
       }
-      if (isAuthed(getState())) {
-        toRef(toState(getState())).update(payload)
-        .catch(error => dispatch({
-          type: CREATE_FAILURE(key),
-          payload: error,
-          error: true,
-          meta: {
-            key
-          }
-        }));
+      if (isAuthed(getState()) && toState(getState()).getIn(['firebase', 'connected_once'])) {
+        toRef(toState(getState())).update(payload);
       } else {
         dispatch({
           type: ANONYMOUS_VALUE_TYPE,
@@ -93,22 +71,11 @@ export default (schemas, toState) => {
       }
     };
 
-    const destroy = (id) => (dispatch, getState) => {
-      const to_destroy = _destroy(schemas, toState(getState()).get('entities'), key, id);
+    const destroy = id => (dispatch, getState) => {
+      const payload = _destroy(schemas, toState(getState()).get('entities'), key, id);
       const ref        = toRef(toState(getState()));
-      const payload    = {};
-      for (let path of to_destroy) {
-        payload[path]  = null;
-      }
-      if (isAuthed(getState())) {
-        ref.update(payload)
-        .catch(error => dispatch({
-          type: DESTROY_FAILURE(key),
-          payload: error,
-          meta: {
-            key
-          }
-        }));
+      if (isAuthed(getState()) && toState(getState()).getIn(['firebase', 'connected_once'])) {
+        ref.update(payload);
       } else {
         dispatch({
           type: ANONYMOUS_VALUE_TYPE,
@@ -123,21 +90,14 @@ export default (schemas, toState) => {
       for (let key in payload) {
         const value = payload[key];
         const path = key.split('/');
-        final_payload[key] = toState(getState()).getIn(['entities', ...path]).mergeDeep(fromJS(value)).toJS();
-        console.log(final_payload[key]);
-        console.log(toState(getState()).getIn(['entities', ...path]));
-        console.log(value);
+        try {
+          final_payload[key] = toState(getState()).getIn(['entities', ...path]).mergeDeep(fromJS(value)).toJS();
+        } catch (error) {
+          final_payload[key] = value;
+        }
       }
-      if (isAuthed(getState())) {
-        toRef(toState(getState())).update(final_payload)
-        .catch(error => dispatch({
-          type: UPDATE_FAILURE(key),
-          payload: error,
-          error: true,
-          meta: {
-            key
-          }
-        }));
+      if (isAuthed(getState()) && toState(getState()).getIn(['firebase', 'connected_once'])) {
+        toRef(toState(getState())).update(final_payload);
       } else {
         dispatch({
           type: ANONYMOUS_VALUE_TYPE,
@@ -146,7 +106,7 @@ export default (schemas, toState) => {
       }
     };
 
-    Object.assign(result, { [key]: { create, update, destroy } });
+    Object.assign(result.crud, { [key]: { create, update, destroy } });
   }
   return result;
 }

@@ -1,9 +1,20 @@
-const destroy = (schemas, entities, key, id, result = []) => {
+const destroy = (schemas, entities, key, id, result = {}) => {
   const path  = key + '/' + id;
-  if (result.indexOf(path) >= 0) {
+  if (path in result) {
     return result;
   }
-  result.push(path);
+  const to_remove = [];
+  for (let _path in result) {
+    if (_path.startsWith(path)) {
+      to_remove.push(_path);
+    } else if (path.startsWith(_path)) {
+      return result;
+    }
+  }
+  for (let _path of to_remove) {
+    delete result[_path];
+  }
+  result[path] = null;
   const schema = schemas[key];
   const entity = entities.getIn([key, id]);
   for (let field in schema.relationships()) {
@@ -14,7 +25,17 @@ const destroy = (schemas, entities, key, id, result = []) => {
     if (relation.type == 'HAS_MANY') {
       entity.get(field).forEach((v, id) => destroy(schemas, entities, relation.schema.key(), id, result));
     } else if (relation.type == 'BELONGS_TO') {
-      result.push(relation.schema.key() + '/' + entity.get(field) + '/' + relation.inverse_of + '/' + id);
+      const to_add = relation.schema.key() + '/' + entity.get(field) + '/' + relation.inverse_of + '/' + id;
+      let   add = true;
+      for (let _path in result) {
+        if (to_add.startsWith(_path)) {
+          add = false;
+          break;
+        }
+      }
+      if (add) {
+        result[to_add] = null;
+      }
     }
   }
   return result;
