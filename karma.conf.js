@@ -100,7 +100,7 @@ module.exports = function(config) {
           {test: /\.js$/, exclude: /(node_modules|test)/, loader: 'eslint'}
         ],
         loaders: [
-          {test: /\.jsx?$/, exclude: /(node_modules|firebase-copy)/, loader: 'babel'},
+          {test: /\.jsx?$/, exclude: /node_modules/, loader: 'babel'},
         ],
         postLoaders: [
         ],
@@ -109,7 +109,6 @@ module.exports = function(config) {
         ]
       },
       plugins: [
-        new webpack.IgnorePlugin(/firebase-copy/),
       ]
     },
 
