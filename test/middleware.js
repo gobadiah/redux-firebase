@@ -103,4 +103,16 @@ describe('middleware', () => {
     expect(ref.set.called).to.be.false;
     expect(next.calledOnce).to.be.true;
   });
+
+  it('should handle when there is a snapshot of the database and VALUE action, OK server empty', () => {
+    state = state.set('entities', entities.setIn(['users', 'elf'], Map({ id: 'elf', name: 'Gabrielle' })))
+    .set('snapshot', entities)
+    .setIn(['firebase', 'connected'], true);
+    let action = {
+      type: VALUE_TYPE
+    };
+    middleware(store)(next)(action);
+    expect(ref.set.called).to.be.false;
+    expect(next.calledOnce).to.be.true;
+  });
 });
