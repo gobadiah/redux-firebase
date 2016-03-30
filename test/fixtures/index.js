@@ -11,7 +11,7 @@ export const ENDPOINT = 'ws://localhost.firebaseio.test:5000';
 
 export const schemas = {
   users,
-  shoes
+  shoes,
 };
 
 export const entities = fromJS({
@@ -21,7 +21,7 @@ export const entities = fromJS({
       shoes: {
         a: true,
         b: true
-      }
+      },
     },
     two: {
       id: 'two',
