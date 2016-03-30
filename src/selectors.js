@@ -1,6 +1,7 @@
 export default (schemas, toState) => {
   const computeObject = (entities, key, id) => {
     const schema  = schemas[key];
+    console.log('computeObject', key, id);
     let object    = entities.getIn([key, id]);
     for (let field in schema.relationships()) {
       const relation = schema.relation(field);

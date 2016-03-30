@@ -21,14 +21,17 @@ class Schema {
     return this._relationships[field];
   }
 
-  hasMany(schema, field, inverse_of) {
-    this._define(schema, field, inverse_of, 'HAS_MANY');
+  hasMany(schema, field, inverse_of, options) {
+    this._define(schema, field, inverse_of, 'HAS_MANY', options);
     schema._define(this, inverse_of, field, 'BELONGS_TO');
     return this;
   }
 
-  _define(schema, field, inverse_of, type) {
-    this._relationships[field] = { schema, field, inverse_of, type };
+  _define(schema, field, inverse_of, type, options) {
+    if (!options) {
+      options = {};
+    }
+    this._relationships[field] = { schema, field, inverse_of, type, options };
   }
 }
 

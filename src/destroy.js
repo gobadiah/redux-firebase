@@ -23,7 +23,23 @@ const destroy = (schemas, entities, key, id, result = {}) => {
     }
     const relation = schema.relation(field);
     if (relation.type == 'HAS_MANY') {
-      entity.get(field).forEach((v, id) => destroy(schemas, entities, relation.schema.key(), id, result));
+      if (relation.options.dependent == 'nullify') {
+        entity.get(field).forEach((v, id) => {
+          const to_add = relation.schema.key() + '/' + id + '/' + relation.inverse_of;
+          let add = true;
+          for (let _path in result) {
+            if (to_add.startsWith(_path)) {
+              add = false;
+              break;
+            }
+          }
+          if (add) {
+            result[to_add] = null;
+          }
+        });
+      } else {
+        entity.get(field).forEach((v, id) => destroy(schemas, entities, relation.schema.key(), id, result));
+      }
     } else if (relation.type == 'BELONGS_TO') {
       const to_add = relation.schema.key() + '/' + entity.get(field) + '/' + relation.inverse_of + '/' + id;
       let   add = true;

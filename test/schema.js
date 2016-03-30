@@ -38,4 +38,10 @@ describe('schema', () => {
 
     expect(users.relation('private_pants').type).to.eql('HAS_MANY');
   });
+
+  it('should be able to define nullify dependency', () => {
+    const users = new Schema('users');
+    const cars  = new Schema('cars');
+    users.hasMany(cars, 'private_cars', 'owner', { dependent: 'nullify' });
+  });
 });
