@@ -18,6 +18,10 @@ export default (schemas, entities, key, data) => {
       if (entity.get(field) == data[field]) {
         continue;
       }
+      if (!entities.getIn([relation.schema.key(), data[field]]) && data[field]) {
+        delete data[field];
+        continue;
+      }
       if (entity.get(field)) {
         const to_remove = relation.schema.key() + '/' + entity.get(field) + '/' + relation.inverse_of + '/' + id;
         result[to_remove] = null;

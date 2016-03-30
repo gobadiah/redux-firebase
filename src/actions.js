@@ -73,7 +73,7 @@ export default (schemas, toState) => {
 
     const destroy = id => (dispatch, getState) => {
       const payload = _destroy(schemas, toState(getState()).get('entities'), key, id);
-      const ref        = toRef(toState(getState()));
+      const ref     = toRef(toState(getState()));
       if (isAuthed(getState()) && toState(getState()).getIn(['firebase', 'connected_once'])) {
         ref.update(payload);
       } else {

@@ -38,4 +38,19 @@ describe('update', () => {
     const foo = () => update(schemas, entities, 'users', { id: 'one', shoes: { 'a': true } });
     expect(foo).to.throw(Error);
   });
+
+  it('should not update if the id does not exist', () => {
+    const result = update(schemas, entities, 'shoes', { id: 'c', owner: 'unknown' });
+    expect(result).to.eql({
+      'shoes/c': { id: 'c' }
+    });
+  });
+
+  it('should set to null the relations', () => {
+    const result = update(schemas, entities, 'shoes', { id: 'c', owner: null });
+    expect(result).to.eql({
+      'shoes/c': { id: 'c', owner: null },
+      'users/two/shoes/c': null
+    });
+  });
 });
