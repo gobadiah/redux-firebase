@@ -25,16 +25,3 @@ export default {
 ```
 
 Then you need to use : 
-
-1. Redux-firebase middleware and reducer :
-
-```javascript
-import { create 
-```
-    
-2. Test
-
-
-    
-
-		
